@@ -1,12 +1,12 @@
 import React from 'react';
 
-export const LoginPage = () => {
+export const RegisterPage = () => {
   return (
-    <form className="login">
-      <h2>Войти</h2>
+    <form className="register">
+      <h2>Регистрация</h2>
       <input type="text" placeholder="Введите имя пользователя" />
       <input type="password" placeholder="Введите пароль" />
-      <button>Войти</button>
+      <button>Зарегестрироваться</button>
     </form>
   );
 };
