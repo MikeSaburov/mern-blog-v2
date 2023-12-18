@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const multer = require('multer');
+const uploadMiddleware = multer({ dest: 'uploads/' });
+const fs = require('fs');
 
 const User = require('./models/User');
 
@@ -48,7 +51,10 @@ app.post('/login', async (req, res) => {
   if (passOk) {
     jwt.sign({ userName, id: userDoc._id }, secret, {}, (err, token) => {
       if (err) throw err;
-      res.cookie('token', token).json('Ok');
+      res.cookie('token', token).json({
+        id: userDoc._id,
+        userName,
+      });
     });
   } else {
     res.status(400).json('Неверный логин или пароль.');
@@ -65,6 +71,15 @@ app.get('/profile', async (req, res) => {
 
 app.post('/logout', async (req, res) => {
   res.cookie('token', '').json('Вы вышли.До встречи!');
+});
+
+app.post('/create', uploadMiddleware.single('file'), async (req, res) => {
+  const { originalname, path } = req.file;
+  const parts = originalname.split('.');
+  const ext = parts[parts.length - 1];
+  const newPath = path + '.' + ext;
+  fs.renameSync(path, newPath);
+  res.json({ ext });
 });
 
 app.listen(4000);
