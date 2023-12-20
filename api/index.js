@@ -17,8 +17,8 @@ const secret = 'ask34735837shdjh4554';
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
-
 app.use(cookieParser());
+app.use('/uploads', express.static(__dirname + '/uploads')); //загрузка изображений с сервера
 
 //подключаемся к БД
 mongoose
@@ -97,7 +97,18 @@ app.post('/create', uploadMiddleware.single('file'), async (req, res) => {
 });
 
 app.get('/post', async (req, res) => {
-  res.json(await Post.find().populate('author', ['userName']));
+  res.json(
+    await Post.find()
+      .populate('author', ['userName'])
+      .sort({ createdAt: -1 }) // сортировка по  дате
+      .limit(10) //лимит постов
+  );
+});
+
+app.get('/post/:id', async (req, res) => {
+  const { id } = req.params;
+  const postDoc = await Post.findById(id).populate('author', ['userName']);
+  res.json(postDoc);
 });
 
 app.listen(4000);
